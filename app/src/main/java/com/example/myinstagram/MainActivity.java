@@ -1,34 +1,116 @@
 package com.example.myinstagram;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.parse.FindCallback;
-import com.parse.GetCallback;
 import com.parse.LogInCallback;
 import com.parse.Parse;
 import com.parse.ParseACL;
 import com.parse.ParseException;
-import com.parse.ParseObject;
-import com.parse.ParseQuery;
 import com.parse.ParseUser;
-import com.parse.SaveCallback;
 import com.parse.SignUpCallback;
 
-import java.util.List;
+public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
-public class MainActivity extends AppCompatActivity {
-
-    final String APP_ID = "myappID";
-    final String CLIENT_KEY = "ksDOgKSSQr4B"; // masterKey
-    final String IP_ADDRESS = "3.133.104.214";
+    TextView switchTextView;
+    TextView messageTextView;
+    Boolean signUpMode = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        parseServerSetup();
+
+        switchTextView = findViewById(R.id.switchTextView);
+        messageTextView = findViewById(R.id.messageTextView);
+        switchTextView.setOnClickListener(this);
+    }
+
+    @Override
+    public void onClick(View view) {
+        if (view.getId() == R.id.switchTextView) {
+            Button button = findViewById(R.id.button);
+            if (signUpMode) {
+                button.setText("Login");
+                switchTextView.setText("or, Sign Up");
+            } else {
+                button.setText("Sign Up");
+                switchTextView.setText("or, Login");
+            }
+            signUpMode = !signUpMode;
+        }
+    }
+
+    public void signUpClicked(View view) {
+        EditText usernameEditText = findViewById(R.id.usernameEditText);
+        EditText passwordEditText = findViewById(R.id.passwordEditText);
+
+        final String username = usernameEditText.getText().toString();
+        final String password = passwordEditText.getText().toString();
+
+        if (username.equals("") || password.equals("")) {
+            Toast.makeText(this, "A username and password is required", Toast.LENGTH_SHORT).show();
+        } else {
+            if (signUpMode) {
+                accountSignUp(username, password);
+            } else {
+                accountLogIn(username, password);
+            }
+        }
+    }
+
+    private void accountSignUp(final String username, final String password) {
+        ParseUser user = new ParseUser();
+        user.setUsername(username);
+        user.setPassword(password);
+
+        user.signUpInBackground(new SignUpCallback() {
+            @Override
+            public void done(ParseException e) {
+                if (e == null) {
+//                    Log.i("Account Sign Up", username + " signed up successfully.");
+                    Toast.makeText(MainActivity.this, username + " signed up successfully", Toast.LENGTH_SHORT).show();
+
+                } else {
+//                    Log.i("Account Sign Up", "Sign up failed");
+                    Toast.makeText(MainActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+    }
+
+    private void accountLogIn(String username, String password) {
+        ParseUser.logInInBackground(username, password, new LogInCallback() {
+            @Override
+            public void done(ParseUser user, ParseException e) {
+                if (user != null) {
+                    String message = "Hi, " + user.getUsername() + "!";
+                    Toast.makeText(MainActivity.this, "Logged in successfully", Toast.LENGTH_SHORT).show();
+                    Log.i("Log in Success", user.getUsername() + " logged in successfully.");
+                    messageTextView.setText(message);
+                } else {
+                    Toast.makeText(MainActivity.this, "Incorrect username or password", Toast.LENGTH_SHORT).show();
+                    Log.i("Log in Failed", "Incorrect username or password.");
+                }
+            }
+        });
+    }
+
+    private void parseServerSetup() {
+
+        final String APP_ID = "myappID";
+        final String CLIENT_KEY = "ksDOgKSSQr4B"; // masterKey
+        final String IP_ADDRESS = "3.133.104.214";
 
         // Enable Local Datastore.
         Parse.enableLocalDatastore(this);
@@ -41,48 +123,13 @@ public class MainActivity extends AppCompatActivity {
                 .build()
         );
 
-        /*ParseUser.logInInBackground("ricky9667", "password", new LogInCallback() {
-            @Override
-            public void done(ParseUser user, ParseException e) {
-                if (user != null) {
-                    Log.i("Log in Success", user.getUsername() + " logged in successfully.");
-                } else {
-                    Log.i("Log in Failed", "Check your username or password.");
-
-                }
-            }
-        });*/
-
-        ParseUser.logOut();
-
-        if (ParseUser.getCurrentUser() != null) {
-            Log.i("Signed In", "Current user: " + ParseUser.getCurrentUser().getUsername());
-        } else {
-            Log.i("Not Signed In", "No current user");
-        }
-
         // ParseUser.enableAutomaticUser();
         ParseACL defaultACL = new ParseACL();
         defaultACL.setPublicReadAccess(true);
         defaultACL.setPublicWriteAccess(true);
         ParseACL.setDefaultACL(defaultACL, true);
-    }
 
-    private void accountSignUp(final String username, String password) {
-        ParseUser user = new ParseUser();
-        user.setUsername(username);
-        user.setPassword(password);
-
-        user.signUpInBackground(new SignUpCallback() {
-            @Override
-            public void done(ParseException e) {
-                if (e == null) {
-                    Log.i("Account Sign Up", username + " signed up successfully.");
-                } else {
-                    e.printStackTrace();
-                }
-            }
-        });
+        TextView switchTextView = findViewById(R.id.switchTextView);
+        switchTextView.setOnClickListener(this);
     }
 }
-
