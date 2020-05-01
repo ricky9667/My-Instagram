@@ -7,6 +7,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.parse.FindCallback;
 import com.parse.GetCallback;
+import com.parse.LogInCallback;
 import com.parse.Parse;
 import com.parse.ParseACL;
 import com.parse.ParseException;
@@ -14,6 +15,7 @@ import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
+import com.parse.SignUpCallback;
 
 import java.util.List;
 
@@ -39,58 +41,43 @@ public class MainActivity extends AppCompatActivity {
                 .build()
         );
 
-//        addParseObject("ricky9667", 85);
-//        addParseObject("txya900619", 100);
-//        addParseObject("xanonymous", 100);
-//        addParseObject("cathychen", 60);
-
-
-        ParseQuery<ParseObject> query = ParseQuery.getQuery("Score");
-
-//        query.whereEqualTo("score", 100); // only shows data that requires the query
-//        query.setLimit(1); // limit the amount of data to show
-
-        query.whereLessThan("score", 80);
-
-        query.findInBackground(new FindCallback<ParseObject>() {
+        /*ParseUser.logInInBackground("ricky9667", "password", new LogInCallback() {
             @Override
-            public void done(List<ParseObject> objects, ParseException e) {
-                if (e == null) {
-                    if (objects.size() > 0) {
-                        for (ParseObject object: objects) {
-                            String username = object.getString("username");
-                            int score = object.getInt("score");
+            public void done(ParseUser user, ParseException e) {
+                if (user != null) {
+                    Log.i("Log in Success", user.getUsername() + " logged in successfully.");
+                } else {
+                    Log.i("Log in Failed", "Check your username or password.");
 
-                            score += 20;
-                            object.put("score", score);
-                            object.saveInBackground();
-
-                            Log.i("username", username);
-                            Log.i("score", Integer.toString(score));
-                        }
-                    }
                 }
             }
-        });
+        });*/
 
-        ParseUser.enableAutomaticUser();
+        ParseUser.logOut();
 
+        if (ParseUser.getCurrentUser() != null) {
+            Log.i("Signed In", "Current user: " + ParseUser.getCurrentUser().getUsername());
+        } else {
+            Log.i("Not Signed In", "No current user");
+        }
+
+        // ParseUser.enableAutomaticUser();
         ParseACL defaultACL = new ParseACL();
         defaultACL.setPublicReadAccess(true);
         defaultACL.setPublicWriteAccess(true);
         ParseACL.setDefaultACL(defaultACL, true);
     }
 
-    private void addParseObject(final String username, final int score) {
-        ParseObject object = new ParseObject("Score");
-        object.put("username", username);
-        object.put("score", score);
+    private void accountSignUp(final String username, String password) {
+        ParseUser user = new ParseUser();
+        user.setUsername(username);
+        user.setPassword(password);
 
-        object.saveInBackground(new SaveCallback() {
+        user.signUpInBackground(new SignUpCallback() {
             @Override
             public void done(ParseException e) {
                 if (e == null) {
-                    Log.i("Success", "data of " + username + " with score " + score + " saved.");
+                    Log.i("Account Sign Up", username + " signed up successfully.");
                 } else {
                     e.printStackTrace();
                 }
