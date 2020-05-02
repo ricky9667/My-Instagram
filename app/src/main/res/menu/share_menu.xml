@@ -3,4 +3,8 @@
     <item
         android:id="@+id/share"
         android:title="Share" />
+
+    <item
+        android:id="@+id/logout"
+        android:title="Log out" />
 </menu>
