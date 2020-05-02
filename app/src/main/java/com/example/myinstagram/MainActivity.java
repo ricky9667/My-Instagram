@@ -26,7 +26,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     ConstraintLayout backgroundLayout;
     ImageView logoImageView;
     TextView switchTextView;
-    TextView messageTextView;
     EditText usernameEditText;
     EditText passwordEditText;
 
@@ -45,8 +44,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         currentUser = ParseUser.getCurrentUser();
         if (currentUser != null) {
-            String message = "Hi, " + currentUser.getUsername() + "!";
-            messageTextView.setText(message);
             showUserList();
         }
     }
@@ -127,10 +124,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             @Override
             public void done(ParseUser user, ParseException e) {
                 if (user != null) {
-                    String message = "Hi, " + user.getUsername() + "!";
                     Toast.makeText(MainActivity.this, "Logged in successfully", Toast.LENGTH_SHORT).show();
                     Log.i("Log in Success", user.getUsername() + " logged in successfully.");
-                    messageTextView.setText(message);
                     showUserList();
                 } else {
                     Toast.makeText(MainActivity.this, "Incorrect username or password", Toast.LENGTH_SHORT).show();
@@ -171,7 +166,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         backgroundLayout = findViewById(R.id.backgroundLayout);
         logoImageView = findViewById(R.id.logoImageView);
         switchTextView = findViewById(R.id.switchTextView);
-        messageTextView = findViewById(R.id.messageTextView);
         usernameEditText = findViewById(R.id.usernameEditText);
         passwordEditText = findViewById(R.id.passwordEditText);
 

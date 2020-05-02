@@ -32,10 +32,10 @@ public class UserFeedActivity extends AppCompatActivity {
 
         Intent intent = getIntent();
         username = intent.getStringExtra("username");
-        setTitle(username + "'s Images");
+        setTitle("Images of " + username);
         linearLayout = findViewById(R.id.linearLayout);
 
-        ParseQuery<ParseObject> query = new ParseQuery<ParseObject>("Image");
+        ParseQuery<ParseObject> query = new ParseQuery<>("Image");
         query.whereEqualTo("username", username);
         query.orderByDescending("createdAt");
 

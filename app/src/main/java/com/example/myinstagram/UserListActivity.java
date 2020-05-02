@@ -1,9 +1,5 @@
 package com.example.myinstagram;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -18,9 +14,12 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.parse.FindCallback;
 import com.parse.ParseException;
@@ -53,15 +52,6 @@ public class UserListActivity extends AppCompatActivity {
         usernames = new ArrayList<>();
         currentUser = ParseUser.getCurrentUser();
 
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Intent intent = new Intent(getApplicationContext(), UserFeedActivity.class);
-                intent.putExtra("username", usernames.get(position));
-                startActivity(intent);
-            }
-        });
-
         setupUserList();
     }
 
@@ -69,7 +59,7 @@ public class UserListActivity extends AppCompatActivity {
 
         final ArrayAdapter arrayAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, usernames);
 
-//        usernames.add(ParseUser.getCurrentUser().getUsername());
+        usernames.add("It's You");
 
         listView.setAdapter(arrayAdapter);
 
@@ -83,7 +73,6 @@ public class UserListActivity extends AppCompatActivity {
                 if (e == null) {
                     if (objects.size() > 0) {
                         for (ParseUser user: objects) {
-//                            Log.i("username", user.getUsername());
                             usernames.add(user.getUsername());
                         }
                         arrayAdapter.notifyDataSetChanged();
@@ -93,28 +82,44 @@ public class UserListActivity extends AppCompatActivity {
                 }
             }
         });
+
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Intent intent = new Intent(getApplicationContext(), UserFeedActivity.class);
+                if (position == 0) {
+                    intent.putExtra("username", currentUser.getUsername());
+                } else {
+                    intent.putExtra("username", usernames.get(position));
+                }
+                startActivity(intent);
+            }
+        });
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater menuInflater = getMenuInflater();
         menuInflater.inflate(R.menu.share_menu, menu);
-
         return super.onCreateOptionsMenu(menu);
     }
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        if (item.getItemId() == R.id.share) {
-            if (checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-                requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, REQUEST_CODE);
-            } else {
-                getPhoto();
-            }
-        } else if (item.getItemId() == R.id.logout) {
-            ParseUser.logOut();
-            Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-            startActivity(intent);
+
+        switch (item.getItemId()) {
+            case R.id.share:
+                if (checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                    requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, REQUEST_CODE);
+                } else {
+                    getPhoto();
+                }
+                break;
+            case R.id.logout:
+                ParseUser.logOut();
+                Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                startActivity(intent);
+                break;
         }
 
         return super.onOptionsItemSelected(item);
@@ -123,6 +128,7 @@ public class UserListActivity extends AppCompatActivity {
     public void getPhoto() {
         Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
         startActivityForResult(intent, REQUEST_CODE);
+        // some issues make app crash
     }
 
     @Override
@@ -134,7 +140,6 @@ public class UserListActivity extends AppCompatActivity {
         if (requestCode == REQUEST_CODE && resultCode == RESULT_OK && data != null) {
             try {
                 Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), selectedImage);
-//                Log.i("Image Selected", "Success");
 
                 ByteArrayOutputStream stream = new ByteArrayOutputStream();
                 bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
