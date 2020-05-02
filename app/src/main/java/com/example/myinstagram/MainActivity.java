@@ -1,17 +1,13 @@
 package com.example.myinstagram;
 
-import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -41,18 +37,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
         parseServerSetup();
-
-        backgroundLayout = findViewById(R.id.backgroundLayout);
-        logoImageView = findViewById(R.id.logoImageView);
-        switchTextView = findViewById(R.id.switchTextView);
-        messageTextView = findViewById(R.id.messageTextView);
-        usernameEditText = findViewById(R.id.usernameEditText);
-        passwordEditText = findViewById(R.id.passwordEditText);
-
-        backgroundLayout.setOnClickListener(this);
-        logoImageView.setOnClickListener(this);
-        switchTextView.setOnClickListener(this);
+        layoutSetup(); // find Views and set onClickListeners
 
         currentUser = ParseUser.getCurrentUser();
         if (currentUser != null) {
@@ -76,6 +63,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             signUpMode = !signUpMode;
         }
 
+        // error occurred
 //        if (view.getId() == R.id.logoImageView || view.getId() == R.id.backgroundLayout) {
 //            InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
 //            inputMethodManager.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0); // close keyboard
@@ -121,11 +109,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             @Override
             public void done(ParseException e) {
                 if (e == null) {
-//                    Log.i("Account Sign Up", username + " signed up successfully.");
+                    Log.i("Account Sign Up", username + " signed up successfully.");
                     Toast.makeText(MainActivity.this, username + " signed up successfully", Toast.LENGTH_SHORT).show();
                     showUserList();
                 } else {
-//                    Log.i("Account Sign Up", "Sign up failed");
+                    Log.i("Account Sign Up", "Sign up failed");
                     Toast.makeText(MainActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
                 }
             }
@@ -139,12 +127,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 if (user != null) {
                     String message = "Hi, " + user.getUsername() + "!";
                     Toast.makeText(MainActivity.this, "Logged in successfully", Toast.LENGTH_SHORT).show();
-//                    Log.i("Log in Success", user.getUsername() + " logged in successfully.");
+                    Log.i("Log in Success", user.getUsername() + " logged in successfully.");
                     messageTextView.setText(message);
                     showUserList();
                 } else {
                     Toast.makeText(MainActivity.this, "Incorrect username or password", Toast.LENGTH_SHORT).show();
-//                    Log.i("Log in Failed", "Incorrect username or password.");
+                    Log.i("Log in Failed", "Log in failed");
                 }
             }
         });
@@ -174,6 +162,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         ParseACL.setDefaultACL(defaultACL, true);
 
         TextView switchTextView = findViewById(R.id.switchTextView);
+        switchTextView.setOnClickListener(this);
+    }
+
+    private void layoutSetup() {
+        backgroundLayout = findViewById(R.id.backgroundLayout);
+        logoImageView = findViewById(R.id.logoImageView);
+        switchTextView = findViewById(R.id.switchTextView);
+        messageTextView = findViewById(R.id.messageTextView);
+        usernameEditText = findViewById(R.id.usernameEditText);
+        passwordEditText = findViewById(R.id.passwordEditText);
+
+        backgroundLayout.setOnClickListener(this);
+        logoImageView.setOnClickListener(this);
         switchTextView.setOnClickListener(this);
     }
 }
